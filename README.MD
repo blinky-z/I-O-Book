@@ -15,9 +15,8 @@
         + [Summary](#summary)
         + [Больше про Signal-Driven I/O](#%D0%B1%D0%BE%D0%BB%D1%8C%D1%88%D0%B5-%D0%BF%D1%80%D0%BE-signal-driven-io)
     * [Asynchronous I/O](#asynchronous-io)
-        + [Linux AIO](#linux-aio)
+        + [POSIX AIO](#posix-aio)
         + [Linux io_uring](#linux-io_uring)
-        + [Больше про Asynchronous I/O](#%D0%B1%D0%BE%D0%BB%D1%8C%D1%88%D0%B5-%D0%BF%D1%80%D0%BE-asynchronous-io)
     * [Концептуальное сравнение I/O моделей](#%D0%BA%D0%BE%D0%BD%D1%86%D0%B5%D0%BF%D1%82%D1%83%D0%B0%D0%BB%D1%8C%D0%BD%D0%BE%D0%B5-%D1%81%D1%80%D0%B0%D0%B2%D0%BD%D0%B5%D0%BD%D0%B8%D0%B5-io-%D0%BC%D0%BE%D0%B4%D0%B5%D0%BB%D0%B5%D0%B9)
     * [Синхронное/Асинхронное I/O](#%D1%81%D0%B8%D0%BD%D1%85%D1%80%D0%BE%D0%BD%D0%BD%D0%BE%D0%B5%D0%B0%D1%81%D0%B8%D0%BD%D1%85%D1%80%D0%BE%D0%BD%D0%BD%D0%BE%D0%B5-io)
 - [Designing An Efficient Web Server](#designing-an-efficient-web-server)
@@ -322,13 +321,13 @@ Signal-Driven I/O:
 
 ## Asynchronous I/O
 
-В асинхронной модели I/O мы просим ядро начать операцию и уведомить нас, когда вся I/O операция завершится, включая копирование данных между user/kernel-space буферами. Это отличается от прошлых моделей тем, что теперь ядро уведомляет нас не о готовности данных на сокете, а о полном окончании операции чтения/записи. Таким образом, теперь операции I/O полностью выполняются на стороне ядра.
+В асинхронной модели I/O мы просим ядро начать операцию и уведомить нас, когда вся I/O операция завершится, включая копирование данных между user/kernel-space буферами. Это отличается от прошлых моделей тем, что теперь ядро уведомляет нас не о готовности данных на сокете, а о полном окончании операции чтения/записи. Таким образом, теперь операции I/O выполняются полностью на стороне ядра.
 
-### Linux AIO
+### POSIX AIO
 
-**[POSIX AIO](https://man7.org/linux/man-pages/man7/aio.7.html)** - это асинхронное I/O API, предоставляемое в POSIX и Linux.
+**[POSIX AIO](https://man7.org/linux/man-pages/man7/aio.7.html)** - это асинхронное I/O API, закрепленное в стандарте POSIX.
 
-Две основные функции данного API в Linux - это `int aio_read(struct aiocb *aiocbp)` и `int aio_write(struct aiocb *aiocbp)`. Они принимают в качестве аргумента структуру *aiocb* ("asynchronous I/O control block"), которая определяет I/O операцию:
+Две основные функции данного API - это `int aio_read(struct aiocb *aiocbp)` и `int aio_write(struct aiocb *aiocbp)`. Они принимают в качестве аргумента структуру *aiocb* ("asynchronous I/O control block"), которая определяет I/O операцию:
 ```C
 #include <aiocb.h>
 
@@ -364,24 +363,24 @@ struct aiocb {
 **Недостатки:**
 - Сложен в использовании
 - Не эффективен
+- Почти не используется в реальном мире
 
-Читайте больше про Linux AIO на [man aio(7)](https://man7.org/linux/man-pages/man7/aio.7.html).
+Больше информации про AIO:
+- [man aio(7)](https://man7.org/linux/man-pages/man7/aio.7.html).
+- [asynchronous disk I/O](https://blog.libtorrent.org/2012/10/asynchronous-disk-io/) - статья про неудачные попытки использования POSIX AIO/Windows overlapped I/O для файловых I/O операций
+- [Lord of the io_uring: Asynchronous Programming Under Linux](https://unixism.net/loti/async_intro.html) - отличная вводная статья про Asynchronous I/O в Linux; здесь также рассказывается про недостатки AIO
 
 ### Linux io_uring
 
-**io_uring** - это новое API для асинхронных I/O операций, которое призвано решить недостатки aio. Доступен для использования с версии Linux Kernel 5.1
+**io_uring** - это новое API для асинхронных I/O операций в Linux, которое призвано решить недостатки aio. Доступен для использования с версии Linux Kernel 5.1
 
 Скорее всего вы захотите использовать библиотеку [liburing](https://github.com/axboe/liburing), так как она сильно облегчает использование io_uring, предоставляя более высокоуровневое и удобное API для доступа к io_uring.
 
-Больше информации про io_uring ищите на сайте [Lord of the io_uring](https://unixism.net/loti/index.html).
-
-### Больше про Asynchronous I/O
-
-- [Lord of the io_uring: Asynchronous Programming Under Linux](https://unixism.net/loti/async_intro.html) - отличная вводная статья про Asynchronous I/O в Linux
-- Цикл статей [io_uring By Example](https://unixism.net/2020/04/io-uring-by-example-article-series/) от создателя *Lord of the io_uring*
-- [IO_URING. Часть 1. Введение](https://habr.com/ru/post/589389/) - статья на Habr про ui_uring
+Больше информации про io_uring:
+- [Lord of the io_uring](https://unixism.net/loti/index.html) и Цикл статей [io_uring By Example](https://unixism.net/2020/04/io-uring-by-example-article-series/)
 - [whitepaper: Efficient IO with io_uring](https://kernel.dk/io_uring.pdf) - whitepaper про ui_uring
-- [asynchronous disk I/O](https://blog.libtorrent.org/2012/10/asynchronous-disk-io/) - статья про неудачные попытки использования POSIX AIO/Windows overlapped I/O для файловых I/O операций
+- [https://kernel.dk/axboe-kr2022.pdf](https://kernel.dk/axboe-kr2022.pdf) - доклад про io_uring от [Jens Axboe](https://en.wikipedia.org/wiki/Jens_Axboe)
+- [IO_URING. Часть 1. Введение](https://habr.com/ru/post/589389/) - статья на Habr про ui_uring
 
 ---
 

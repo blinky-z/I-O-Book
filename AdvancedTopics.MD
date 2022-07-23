@@ -567,11 +567,15 @@ int uv__epoll_init(uv_loop_t* loop) {
 
 ### More about libuv
 
-Здесь приведу дополнительные ресурсы про libuv. Они в основном связаны с Node.js, где используется libuv под капотом.
+Здесь приведу дополнительные ресурсы про libuv. Некоторые рассказывают о libuv в контексте Node.js, так как там используется libuv под капотом.
 
 Доклады:
 - [NodeConf EU | A deep dive into libuv](https://www.youtube.com/watch?v=sGTRmPiXD4Y)
 - [Node's Event Loop From the Inside Out by Sam Roberts, IBM](https://www.youtube.com/watch?v=P9csgxBgaZ8)
 
-Статьи:
+Статьи и документация:
+- [libuv documentation](https://docs.libuv.org/en/v1.x/index.html)
 - [Node.js Internals: Libuv and the event loop behind the curtain](https://medium.com/softup-technologies/node-js-internals-libuv-and-the-event-loop-behind-the-curtain-30708c5ca83)
+
+Source code:
+- [https://github.com/libuv/libuv](https://github.com/libuv/libuv)
