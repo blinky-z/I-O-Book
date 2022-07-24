@@ -107,12 +107,15 @@ I/O Framework [libuv](https://libuv.org/) оборачивает системн�
 - *Synchronization primitives for threads* (e.g. locks, mutexes, semaphores, barriers)
 - *High-resolution clock* (if Date.now is not accurate enough, process.hrtime can be used)
 
-Libuv обрабатывает I/O следующим образом:
-- Network I/O - обрабатывает с помощью event loop + epoll (Linux), kqueue (MacOs) или же с помошью IOCP на Windows
-    - > The event loop follows the rather usual single threaded asynchronous I/O approach: all (network) I/O is performed on non-blocking sockets which are polled using the best mechanism available on the given platform: epoll on Linux, kqueue on OSX and other BSDs, event ports on SunOS and IOCP on Windows. As part of a loop iteration the loop will block waiting for I/O activity on sockets which have been added to the poller and callbacks will be fired indicating socket conditions (readable, writable hangup) so handles can read, write or perform the desired I/O operation.
-    - > libuv uses a thread pool to make asynchronous file I/O operations possible, but network I/O is always performed in a single thread, each loop’s thread.
-- File I/O/DNS resolve/User code - обрабатывает с помошью Thread Pool (Workers)
-    - > Unlike network I/O, there are no platform-specific file I/O primitives libuv could rely on, so the current approach is to run blocking file I/O operations in a thread pool.
+Libuv обрабатывает *Network I/O* с помощью epoll (Linux), kqueue (MacOS) или же с помошью IOCP на Windows:
+- > The event loop follows the rather usual single threaded asynchronous I/O approach: all (network) I/O is performed on non-blocking sockets which are polled using the best mechanism available on the given platform: epoll on Linux, kqueue on OSX and other BSDs, event ports on SunOS and IOCP on Windows. As part of a loop iteration the loop will block waiting for I/O activity on sockets which have been added to the poller and callbacks will be fired indicating socket conditions (readable, writable hangup) so handles can read, write or perform the desired I/O operation.
+
+Однако, *File I/O* обрабатывается с помошью Thread Pool:
+- > Unlike network I/O, there are no platform-specific file I/O primitives libuv could rely on, so the current approach is to run blocking file I/O operations in a thread pool.
+- > libuv uses a thread pool to make asynchronous file I/O operations possible, but network I/O is always performed in a single thread, each loop’s thread.
+
+Также доступ к этому Thread Pool открыт в API для выполнения пользовательских долгих или блокирующих операций - смотрите функцию [uv_queue_work()](http://docs.libuv.org/en/v1.x/threadpool.html#c.uv_queue_work). Она принимает коллбек `work_cb`, содержащий в себе необходимую пользовательскую работу, которую надо выполнить в Thread Pool, и коллбек `after_work_cb`, вызываемый по завершении работы в треде Event Loop:
+> Initializes a work request which will run the given work_cb in a thread from the threadpool. Once work_cb is completed, after_work_cb will be called on the loop thread.
 
 Составляющие части libuv:
 ![libuv Design Overview](assets/libuv_design_overview.png)
@@ -142,7 +145,7 @@ Event Loop в libuv работает следующим образом:
 
 Здесь мы разберем внутреннее устройство libuv. Будет много соурс кода, но я постараюсь сокращать его только до самой полезной и важной информации, и давать пояснительные комментарии.
 
-Например, мы хотим подписаться на ожидание данных на TCP сокете. Сделать это можно вот так:
+Например, мы хотим подписаться на ожидание данных на TCP сокете. Сделать это можно вот так - я взял уже готовый пример из официальной документации ([docs/code/tcp-echo-server/main.c](https://github.com/libuv/libuv/blob/master/docs/code/tcp-echo-server/main.c)):
 ```C
 // коллбек для аллокации буфера, куда запишутся данные с сокета
 void alloc_buffer(uv_handle_t *handle, size_t suggested_size, uv_buf_t *buf) {
@@ -150,7 +153,7 @@ void alloc_buffer(uv_handle_t *handle, size_t suggested_size, uv_buf_t *buf) {
     buf->len = suggested_size;
 }
 
-// коллбек при готовности данных на сокете
+// пользовательский коллбек при готовности данных на сокете
 void echo_read(uv_stream_t *client, ssize_t nread, const uv_buf_t *buf) {
     if (nread > 0) {
         write_req_t *req = (write_req_t*) malloc(sizeof(write_req_t));
@@ -202,7 +205,7 @@ int main() {
 }
 ```
 
-Код по подписанию на чтение с сокета находится в коллбеке `on_new_connection`, который вызывается при принятии нового соединениия. Здесь нас интересуют функции `uv_tcp_init`, `uv_accept` и `uv_read_start`. Первые две функции являются синхронными, так как они выполняют CPU-bound работу по инициализации handle и принятию соединения. Функция `uv_read_start` же подписывает нас на асинхронное чтение с сокета.
+Код по подписанию на чтение с сокета находится в коллбеке `on_new_connection`, который вызывается при принятии нового соединениия. В нем нас интересуют функции `uv_tcp_init`, `uv_accept` и `uv_read_start`. Первые две функции являются синхронными, так как они выполняют CPU-bound работу по инициализации handle и принятию соединения. Функция `uv_read_start` же подписывает нас на асинхронное чтение с сокета.
 
 Разберем **uv_tcp_init**:
 1. Функция [uv_tcp_init](https://github.com/libuv/libuv/blob/6c692ad1cbcc5083ec90954a4b091b660aedfc10/src/unix/tcp.c#L143) определена так:
