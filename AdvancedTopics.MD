@@ -1,12 +1,15 @@
 # Мультиплексирование
 
-Оглавление:
-* [select](#select)
-* [poll](#poll)
-* [libuv](#libuv)
-    + [Event Loop](#event-loop)
-    + [libuv Internals](#libuv-internals)
-    + [More about libuv](#more-about-libuv)
+Содержание:
+<!-- TOC -->
+* [Мультиплексирование](#)
+  * [select](#select)
+  * [poll](#poll)
+  * [libuv](#libuv)
+    * [Event Loop](#event-loop)
+    * [libuv Internals](#libuv-internals)
+    * [More about libuv](#more-about-libuv)
+<!-- TOC -->
 
 ## select
 
