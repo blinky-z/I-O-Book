@@ -33,7 +33,8 @@
     * [Signal-Driven I/O Server](#signal-driven-io-server)
     * [Asynchronous I/O Server (io_uring)](#asynchronous-io-server-io_uring)
     * [select vs poll vs epoll](#select-vs-poll-vs-epoll)
-    * [Why Single-Threaded Model Works](#why-single-threaded-model-works)
+    * [Why Single-Threaded Multiplexing Model Works](#why-single-threaded-multiplexing-model-works)
+        + [N kernel calls in loop](#n-kernel-calls-in-loop)
     * [Leveraging Multi-Threading](#leveraging-multi-threading)
     * [The C10K Problem](#the-c10k-problem)
     * [Use non-blocking I/O in case of multiplexing](#use-non-blocking-io-in-case-of-multiplexing)
@@ -794,7 +795,7 @@ Signal-Driven I/O очень дорогая и сложная модель, ко
 
 ---
 
-## Why Single-Threaded Model Works
+## Why Single-Threaded Multiplexing Model Works
 
 Вы наверное спросите, но разве это эффективно обрабатывать все дескрипторы в единственном потоке с использованием мультиплексора?
 
@@ -810,13 +811,13 @@ Signal-Driven I/O очень дорогая и сложная модель, ко
 
 ### N kernel calls in loop
 
-Итак, мы получили ивенты от мультиплексора, проходимся по всем ним и читаем с них данные. Возникает закономерный вопрос: разве это эффективно делать N довольно дорогих сисколлов в цикле?
+Итак, мы получили ивенты от мультиплексора, проходимся по всем ним и читаем с них данные, вызывая сисколл [read()](https://man7.org/linux/man-pages/man2/read.2.html). Возникает закономерный вопрос: разве это эффективно делать N довольно дорогих сисколлов в цикле?
 
 Да, сисколлы действительно дорогие. И хоть они стоят на порядок меньше чем context switch, но траты все равно есть.
 
 Есть ли решение? В Single-Threaded Multiplexing I/O модели сервера нет. С этим ничего не сделать: читать данные с сокетов все равно нужно, а значит всегда будут и сисколлы.
 
-Однако, с использованием io_uring возможно сделать сервер, который будет делать ровно 0 сисколлов на каждый запрос - читайте [Stupid tricks with io_uring: a server that does zero syscalls per request](https://wjwh.eu/posts/2021-10-01-no-syscall-server-iouring.html).
+Однако, с использованием *io_uring* возможно сделать сервер, который будет делать ровно 0 сисколлов на каждый запрос - читайте [Stupid tricks with io_uring: a server that does zero syscalls per request](https://wjwh.eu/posts/2021-10-01-no-syscall-server-iouring.html).
 
 ---
 
