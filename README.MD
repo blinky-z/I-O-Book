@@ -1039,7 +1039,7 @@ ForkJoinPool.commonPool-worker-1: got response
 - Цикл статей [Linux Applications Performance](https://unixism.net/2019/04/linux-applications-performance-introduction/) про использование различных моделей I/O для построения веб-сервера
 - [Kernel Queue: The Complete Guide On The Most Essential Technology For High-Performance I/O](https://habr.com/ru/post/600123/) - обозревает различные I/O API такие как kqueue, epoll и Windows I/O Completion Ports
 - [Lord of the io_uring](https://unixism.net/loti/index.html) - сайт про io_uring
-- [Asynchronous Programming Under Linux](https://unixism.net/loti/async_intro.html) - про асинхронное I/O в Linux
+  - [Lord of the io_uring: Asynchronous Programming Under Linux](https://unixism.net/loti/async_intro.html) - про асинхронное I/O в Linux
 
-Misc:
-- [Linux man-pages](https://www.kernel.org/doc/man-pages/) - Linux man-pages
+Docs:
+- [Linux man-pages](https://www.kernel.org/doc/man-pages/) - Linux manual pages
