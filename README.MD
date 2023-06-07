@@ -1,5 +1,7 @@
 # Помощник в освоении I/O и сетевого программирования
 
+**\[[Операционные системы](https://github.com/blinky-z/OS-Learn)\] | \[[Компьютерные сети](https://github.com/blinky-z/Computer-Networks)\] | \[I/O и сетевое программирование\]**
+
 **Содержание:**
 - [Sockets Basics](#sockets-basics)
 - [Модели I/O](#модели-io)
