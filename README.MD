@@ -604,7 +604,7 @@ while (1) {
 
 - [man select](https://man7.org/linux/man-pages/man2/select.2.html)
 - [UNIX Network Programming Book: Section 6.3 select Function](https://www.masterraghu.com/subjects/np/introduction/unix_network_programming_v1.3/ch06lev1sec3.html)
-- Расширенные заметки о select - [Multiplexing.MD#select](AdvancedTopics.MD#select)
+- Расширенные заметки о select - [Multiplexing.MD#select](./Multiplexing.MD#select)
 
 ---
 
@@ -684,7 +684,7 @@ while (1) {
 
 - [man poll](https://man7.org/linux/man-pages/man2/poll.2.html)
 - [UNIX Network Programming Book: Section 6.10 poll Function](https://www.masterraghu.com/subjects/np/introduction/unix_network_programming_v1.3/ch06lev1sec10.html)
-- Расширенные заметки о poll - [Multiplexing.MD#poll](AdvancedTopics.MD#poll)
+- Расширенные заметки о poll - [Multiplexing.MD#poll](./Multiplexing.MD#poll)
 
 ---
 
@@ -929,7 +929,7 @@ I/O фреймворки решают сразу множество пробле
 
 #### libuv
 
-Я разобрал libuv подробно в отдельной заметке. Смотрите [AdvancedTopics.MD#libuv](AdvancedTopics.MD#libuv)
+Я разобрал libuv подробно в отдельной заметке. Смотрите [AdvancedTopics.MD#libuv](./Multiplexing.MD#libuv)
 
 ---
 
