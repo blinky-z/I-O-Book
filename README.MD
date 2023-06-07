@@ -1,6 +1,6 @@
 # Помощник в освоении I/O и сетевого программирования
 
-**\[[Операционные системы](https://github.com/blinky-z/OS-Learn)\] | \[[Компьютерные сети](https://github.com/blinky-z/Computer-Networks)\] | \[I/O и сетевое программирование\]**
+<p align="center"><b>[<a href="https://github.com/blinky-z/OS-Learn">Операционные системы</a>] | [<a href="https://github.com/blinky-z/Computer-Networks">Компьютерные сети</a>] | [I/O и сетевое программирование]</b></p>
 
 **Содержание:**
 - [Sockets Basics](#sockets-basics)
