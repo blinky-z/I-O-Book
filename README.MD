@@ -182,9 +182,9 @@ POSIX определяет два вида сигналов: reliable (standard)
               handle_input(sockfd)
           }
       }
-      
+
       struct sigaction act = { 0 };
-      
+
       act.sa_flags = SA_RESTART | SA_SIGINFO;
       act.sa_handler = &signal_handler;
       if (sigaction(SIGIO, &act, NULL) == -1) {
@@ -192,9 +192,9 @@ POSIX определяет два вида сигналов: reliable (standard)
       }
       ```
 
-   2. Обратите внимание на флаг `SA_RESTART`. Когда сигнал происходит во время того, как программа была заблокирована на системном вызове, сисколл завершается с ошибкой `EINTR`. Однако возможно сделать автоматических перезапуск многих (но не всех) сисколлов с помощью указания этого флага 
+   2. Обратите внимание на флаг `SA_RESTART`. Когда сигнал происходит во время того, как программа была заблокирована на системном вызове, сисколл завершается с ошибкой `EINTR`. Однако возможно сделать автоматических перезапуск многих (но не всех) сисколлов с помощью указания этого флага
       > **SA_RESTART**
-      > 
+      >
       > Provide behavior compatible with BSD signal semantics by
          making certain system calls restartable across signals.
          This flag is meaningful only when establishing a signal
@@ -202,7 +202,7 @@ POSIX определяет два вида сигналов: reliable (standard)
          restarting.
    3. Мы указываем флаг `SA_SIGINFO` для того, чтобы при срабатывании сигнала в handler была передана дополнительная информация о сработанном сигнале в виде структуры `siginfo_t`
       1. > **SA_SIGINFO (since Linux 2.2)**
-         > 
+         >
          > The signal handler takes three arguments, not one.  In
          this case, `sa_sigaction` should be set instead of
          `sa_handler`.  This flag is meaningful only when
@@ -245,7 +245,7 @@ POSIX определяет два вида сигналов: reliable (standard)
 ```C
 #include <pthread.h>
 #include <signal.h>
-       
+
 sigset_t set;
 sigemptyset(&set);
 sigaddset(&set, SIGQUIT);
@@ -745,7 +745,7 @@ while (1) {
     if (nfds == -1) {
         errExit("epoll_wait");
     }
-    
+
     /* Process all of the returned fds*/
     for (i=0; i < nfds; ++i) {
         n = recv(events[i].data.fd, buf, sizeof(buf), 0);

@@ -227,14 +227,14 @@ int main() {
    ```C
    int uv_tcp_init_ex(uv_loop_t* loop, uv_tcp_t* tcp, unsigned int flags) {
      int domain;
-     
+
      /* Use the lower 8 bits for the domain */
      domain = flags & 0xFF;
      if (domain != AF_INET && domain != AF_INET6 && domain != AF_UNSPEC)
        return UV_EINVAL;
-     
+
      uv__stream_init(loop, (uv_stream_t*)tcp, UV_TCP);
-     
+
      return 0;
    }
    ```
@@ -247,7 +247,7 @@ int main() {
                      uv_stream_t* stream,
                      uv_handle_type type) {
      int err;
-     
+
      uv__handle_init(loop, (uv_handle_t*)stream, type);
      stream->read_cb = NULL;
      stream->alloc_cb = NULL;
@@ -261,7 +261,7 @@ int main() {
      QUEUE_INIT(&stream->write_queue);
      QUEUE_INIT(&stream->write_completed_queue);
      stream->write_queue_size = 0;
-     
+
      uv__io_init(&stream->io_watcher, uv__stream_io, -1);
    }
    ```
@@ -272,7 +272,7 @@ int main() {
     void uv__io_init(uv__io_t* w, uv__io_cb cb, int fd) {
       QUEUE_INIT(&w->pending_queue);
       QUEUE_INIT(&w->watcher_queue);
-      w->cb = cb; /* устанавливаем watcher callback */ 
+      w->cb = cb; /* устанавливаем watcher callback */
       w->fd = fd; /* устанавливаем файловый дескриптор */
       w->events = 0;
       w->pevents = 0;
@@ -286,11 +286,11 @@ int main() {
    static void uv__stream_io(uv_loop_t* loop, uv__io_t* w, unsigned int events) {
      uv_stream_t* stream;
      stream = container_of(w, uv_stream_t, io_watcher); /* Получаем handle, в котором сохранен пользовательский read callback */
-   
+
      /* Ignore POLLHUP here. Even if it's set, there may still be data to read. */
      if (events & (POLLIN | POLLERR | POLLHUP))
        uv__read(stream);
-   
+
      if (events & (POLLOUT | POLLERR | POLLHUP)) {
        uv__write(stream);
        uv__write_callbacks(stream);
@@ -304,12 +304,12 @@ int main() {
        static void uv__read(uv_stream_t* stream) {
          uv_buf_t buf;
          ssize_t nread;
-    
+
          buf = uv_buf_init(NULL, 0);
          stream->alloc_cb((uv_handle_t*)stream, 64 * 1024, &buf); /* Аллоцируем буфер для чтения */
-    
+
          nread = read(uv__stream_fd(stream), buf.base, buf.len); /* Читаем данные с сокета */
-    
+
          if (nread < 0) {
            /* Обрабатываем ошибку */
          } else if (nread == 0) {
@@ -332,10 +332,10 @@ int main() {
    int uv_accept(uv_stream_t* server, uv_stream_t* client) {
      int err;
      assert(server->loop == client->loop);
-     
+
      if (server->accepted_fd == -1)
        return UV_EAGAIN;
-     
+
      switch (client->type) {
        case UV_TCP:
          uv__stream_open(client, server->accepted_fd, UV_HANDLE_READABLE | UV_HANDLE_WRITABLE);
@@ -348,10 +348,10 @@ int main() {
    int uv__stream_open(uv_stream_t* stream, int fd, int flags) {
      if (!(stream->io_watcher.fd == -1 || stream->io_watcher.fd == fd)) /* Ранее мы установили io_watcher.fd равным -1 в функции uv__stream_init */
        return UV_EBUSY;
-     
+
      assert(fd >= 0);
      stream->io_watcher.fd = fd; /* Устанавливаем файловый дескриптор принятого соединения в watcher */
-     
+
      return 0;
    }
    ```
@@ -367,7 +367,7 @@ int main() {
                 uv_read_cb read_cb) {
       stream->read_cb = read_cb; // сохраняем пользовательский read callback
       stream->alloc_cb = alloc_cb; // сохраняем callback, который аллоцирует буфер для чтения
-      
+
       uv__io_start(stream->loop, &stream->io_watcher, POLLIN); /* Выражаем интерес в ивенте POLLIN */
     }
     ```
@@ -377,7 +377,7 @@ int main() {
       ```C
       void uv__io_start(uv_loop_t* loop, uv__io_t* w, unsigned int events) {
         w->pevents |= events; /* Устанавливаем нужные ивенты (мы передали POLLIN из uv__read_start) */
-      
+
         if (loop->watchers[w->fd] == NULL) {
           loop->watchers[w->fd] = w; /* Регистрируем watcher для этого файлового дескриптора */
           loop->nfds++; /* Увеличиваем счетчик отслеживаемых файловых дескрипторов */
@@ -456,16 +456,16 @@ void uv__io_poll(uv_loop_t* loop, int timeout) {
   for (i = 0; i < nfds; i++) {
     pe = events + i;
     fd = pe->data.fd; /* достаем файловый дескриптор */
-    
+
     w = loop->watchers[fd]; /* достаем watcher */
-    
+
     /* Give users only events they're interested in. Prevents spurious
     * callbacks when previous callback invocation in this loop has stopped
     * the current watcher. Also, filters out events that users has not
     * requested us to watch.
     */
     pe->events &= w->pevents | POLLERR | POLLHUP;
-    
+
     if (pe->events != 0) {
       w->cb(loop, w, pe->events); /* вызываем watcher callback (uv__stream_io) */
     }
@@ -559,7 +559,7 @@ int uv_loop_init(uv_loop_t* loop) {
 
 ```C
 int uv__platform_loop_init(uv_loop_t* loop) {
-  
+
   loop->inotify_fd = -1;
   loop->inotify_watchers = NULL;
 
